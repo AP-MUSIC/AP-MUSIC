@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AP MUSIC</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --header-h: 80px;
+        --nav-h: 70px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: calc(var(--header-h) + var(--nav-h));
+      }
+      body {
+        margin: 0;
+        font-family: "Roboto Mono", monospace;
+        background: #000;
+        color: #fff;
+        font-weight: 300;
+        padding-top: calc(var(--header-h) + var(--nav-h));
+      }
+      a {
+        color: #fff;
+      }
+      a:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--header-h);
+        background: #000;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 1rem 1rem 0.25rem;
+        z-index: 1002;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 2.6rem;
+        font-weight: 700;
+        letter-spacing: 5px;
+      }
+
+      nav {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        right: 0;
+        height: var(--nav-h);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: saturate(120%) blur(5px);
+        z-index: 1001;
+      }
+      nav a {
+        text-decoration: none;
+        font-weight: 300;
+        font-size: 1.6rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        opacity: 1;
+        text-decoration: underline;
+      }
+
+      .video-background {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        pointer-events: none;
+        background: #000;
+        filter: brightness(0.6);
+        will-change: transform, filter;
+      }
+
+      section {
+        min-height: 40vh;
+        display: flex;
+        align-items: flex-start;
+        padding: 1.5rem 2rem;
+        gap: 1.5rem;
+        position: relative;
+        z-index: 2;
+        padding-left: 8%;
+        padding-right: 8%;
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+        will-change: opacity, transform;
+      }
+      section.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .section-left {
+        flex: 0 0 25%;
+        font-size: 2rem;
+        font-weight: 400;
+      }
+      .section-right {
+        flex: 1;
+        font-size: 1.3rem;
+      }
+
+      .audio-player {
+        margin-top: 1rem;
+        max-width: 560px;
+      }
+      .playlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.75rem 0 0;
+        display: grid;
+        gap: 0.25rem;
+      }
+      .playlist button {
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        color: #fff;
+        border: 1px solid #333;
+        padding: 0.5rem 0.75rem;
+        font-family: inherit;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .playlist button:hover {
+        background: #111;
+      }
+      .playlist button.active {
+        border-color: #777;
+        background: #0a0a0a;
+      }
+      .audio-title {
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
+        color: #ddd;
+      }
+
+      footer {
+        text-align: center;
+        padding: 1rem;
+        font-size: 0.9rem;
+        font-weight: 300;
+        color: #aaa;
+      }
+
+      #muteToggle {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        padding: 0.6rem 0.9rem;
+        border: 1px solid #333;
+        background: #000;
+        color: #fff;
+        z-index: 1100;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        section {
+          flex-direction: column;
+          align-items: flex-start;
+          min-height: 45vh;
+        }
+        .section-left {
+          flex: none;
+          font-size: 2rem;
+        }
+        .section-right {
+          font-size: 1.5rem;
+          padding-left: 0;
+        }
+        .audio-player {
+          max-width: 100%;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .video-background {
+          display: none;
+        }
+        section {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <video
+      id="bgVideo"
+      class="video-background"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      poster="poster.jpg"
+    >
+      <source src="" type="video/mp4" />
+    </video>
+
+    <button
+      id="muteToggle"
+      aria-label="Unmute background video"
+      aria-pressed="false"
+    >
+      Unmute
+    </button>
+
+    <header><h1>AP MUSIC</h1></header>
+
+    <nav aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#music">Music</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <main>
+      <section id="about" aria-labelledby="about-h">
+        <div class="section-left" id="about-h">About</div>
+        <div class="section-right">
+          AP Music is a Melbourne-based producer creating electronic, pop /
+          alt-pop / synth-pop, atmosphere, experimental work and sound design.
+          <p>
+            Influenced by electronica, jazz, pop, minimalism,
+            bach/chopin/debussy, and Indian classical music, the work explores
+            contrasts of light in dark, cold and warmth, and signal/noise.
+          </p>
+          <p>
+            Working with analog and digital, AP Music creates immersive imagined
+            spaces and shifting, textured environments.
+          </p>
+        </div>
+      </section>
+
+      <section id="music" aria-labelledby="music-h">
+        <div class="section-left" id="music-h">Music</div>
+        <div class="section-right">
+          Commission or collaboration.<br />Low-cost/pro-bono for interesting
+          projects.
+          <p></p>
+
+          <div class="audio-player">
+            <div class="audio-title" id="trackTitle">—</div>
+            <audio id="player" controls preload="metadata" style="width: 100%">
+              <source src="" type="audio/mpeg" />
+              Your browser does not support audio.
+            </audio>
+            <ul class="playlist" id="playlist">
+              <li>
+                <button data-src="tracks/track1.mp3">
+                  Track 1 — Juno Study
+                </button>
+              </li>
+              <li>
+                <button data-src="tracks/track2.mp3">Track 2 — Nocturne</button>
+              </li>
+              <li>
+                <button data-src="tracks/track3.mp3">
+                  Track 3 — Swan Theme
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" aria-labelledby="contact-h">
+        <div class="section-left" id="contact-h">Contact</div>
+        <div class="section-right">
+          email: <a href="mailto:info@apmusic.com">info@apmusic.com</a>
+        </div>
+      </section>
+
+      <div style="height: 40vh"></div>
+    </main>
+
+    <footer><p>&copy; 2025 AP MUSIC</p></footer>
+
+    <script>
+      // Random MP4 chooser
+      const videos = ["demo1.mp4", "demo1.mp4"];
+      const choice = videos[Math.floor(Math.random() * videos.length)];
+      const video = document.getElementById("bgVideo");
+      video.querySelector("source").src = choice;
+      video.load();
+
+      // Parallax + dim
+      let ticking = false;
+      function onScroll() {
+        const y = window.scrollY || 0;
+        video.style.transform = `translateY(${y * 0.08}px)`;
+        video.style.filter = `brightness(${Math.max(0.45, 0.6 - y / 4000)})`;
+        ticking = false;
+      }
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(onScroll);
+        }
+      });
+      onScroll();
+
+      // Reveal sections
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("in");
+          });
+        },
+        { threshold: 0.15 }
+      );
+      document.querySelectorAll("section").forEach((s) => io.observe(s));
+
+      // Active nav
+      const navLinks = [...document.querySelectorAll("nav a")];
+      const sections = [...document.querySelectorAll("main section")];
+      const spy = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              navLinks.forEach((a) =>
+                a.classList.toggle(
+                  "active",
+                  a.getAttribute("href").slice(1) === e.target.id
+                )
+              );
+            }
+          });
+        },
+        { rootMargin: "-40% 0px -50% 0px", threshold: 0.01 }
+      );
+      sections.forEach((s) => spy.observe(s));
+
+      // Audio player guards
+      const player = document.getElementById("player");
+      const srcEl = player ? player.querySelector("source") : null;
+      const titleEl = document.getElementById("trackTitle");
+      const list = document.getElementById("playlist");
+
+      function loadPlay(src, label, btn) {
+        if (!player || !srcEl) return;
+        srcEl.src = src;
+        player.load();
+        player.play().catch(() => {});
+        if (titleEl) titleEl.textContent = label;
+        document
+          .querySelectorAll("#playlist button")
+          .forEach((b) => b.classList.remove("active"));
+        if (btn) btn.classList.add("active");
+      }
+      if (list) {
+        list.addEventListener("click", (e) => {
+          if (e.target.tagName === "BUTTON") {
+            loadPlay(
+              e.target.dataset.src,
+              e.target.textContent.trim(),
+              e.target
+            );
+          }
+        });
+        const firstBtn = document.querySelector("#playlist button");
+        if (firstBtn)
+          loadPlay(firstBtn.dataset.src, firstBtn.textContent.trim(), firstBtn);
+      }
+
+      // Mute/Unmute toggle
+      const toggleBtn = document.getElementById("muteToggle");
+      function updateToggleUI() {
+        const isMuted = video.muted;
+        toggleBtn.textContent = isMuted ? "Unmute" : "Mute";
+        toggleBtn.setAttribute(
+          "aria-label",
+          isMuted ? "Unmute background video" : "Mute background video"
+        );
+        toggleBtn.setAttribute("aria-pressed", (!isMuted).toString());
+      }
+      function toggleMute() {
+        video.muted = !video.muted;
+        if (!video.muted) {
+          video.volume = 0.6;
+          video.play().catch(() => {});
+        }
+        updateToggleUI();
+      }
+      toggleBtn.addEventListener("click", toggleMute);
+
+      updateToggleUI();
+
+      // Exclusive sound: playing a track mutes video; stopping keeps video muted.
+      if (player) {
+        player.addEventListener("play", () => {
+          video.muted = true;
+          updateToggleUI();
+        });
+        const keepVideoMuted = () => {
+          video.muted = true; // stays muted after pause/end
+          updateToggleUI();
+        };
+        player.addEventListener("pause", keepVideoMuted);
+        player.addEventListener("ended", keepVideoMuted);
+      }
+    </script>
+  </body>
+</html>
